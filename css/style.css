@@ -1,9 +1,18 @@
+
+/*
+    COLORS
+    #7C3E66,#F2EBE9,#A5BECC,#243A73
+*/
+
 body{
-    height: 800px;
+    height: 1000px;
     background-color: #A5BECC;
     color: #243A73;
 }
 
+main{
+    height: 850px;
+}
 
 h1{
     margin-top: 2%;
@@ -19,7 +28,8 @@ h1{
 }
 
 .item{
-    grid-column: 1 / span 12;
+    grid-column: 2 / span 10;
+    min-width: 420px;
 }
 
 header{
@@ -37,14 +47,16 @@ section{
 img{
     height: 300px;
     width: 300px;
-    padding: 0 .5%;
+    padding: 2% .5%;
 }
 
-ul, li{
+ul{
+    visibility: hidden;
     grid-row: 3 / span 2;
-    grid-column: 2 / span 11;
+    grid-column: 2 / span 4;
     font-weight: bold;
     color: #243A73;
+    background-color: #A5BECC;
 
 }
 
@@ -56,4 +68,22 @@ button{
     font-size: medium;
     background-color: #F2EBE9;
     text-align: center;
+    grid-row: 2;
+    grid-column: 2;
+}
+
+div{
+    grid-row: 3 / span 2;
+    grid-column: 6 / span 5;
+}
+
+
+canvas{
+    background-color: #A5BECC;
+    width: auto;
+}
+
+canvas #scatterChart{
+    grid-row: 4;
+    grid-column: 6 / span 5;
 }
