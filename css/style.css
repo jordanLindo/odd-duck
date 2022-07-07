@@ -21,10 +21,16 @@ h1{
     
 }
 
+h2{
+    font-size: x-large;
+    font-weight: bold;
+    color: #A5BECC;
+}
+
 .container{
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 420px 60px 1fr 1fr;
+    grid-template-rows: 420px 60px 380px 30px 380px 40px;
 }
 
 .item{
@@ -60,7 +66,7 @@ ul{
 
 }
 
-button{
+#btnResults{
     margin-top: 2%;
     margin-left: 2%;
     height: 30px;
@@ -72,18 +78,21 @@ button{
     grid-column: 2;
 }
 
-div{
+#btnReset{
+    grid-row: 6;
+}
+
+#chart{
     grid-row: 3 / span 2;
     grid-column: 6 / span 5;
 }
 
+#scatter{
+    grid-row: 5;
+    grid-column: 6 / span 5;
+}
 
 canvas{
     background-color: #A5BECC;
     width: auto;
-}
-
-canvas #scatterChart{
-    grid-row: 4;
-    grid-column: 6 / span 5;
 }

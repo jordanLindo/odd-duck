@@ -1,9 +1,12 @@
 /*
     FILE: app.js
     DATE: 2022-07-05
+    DATE MODIFIED: 2022-07-06
+    DATE MODIFIED: 2022-07-06
     AUTHOR: Jordan Lindo
     DESCRIPTION: The logic for voting
 */
+
 
 "use strict";
 
@@ -15,35 +18,66 @@ var imageCount = 3;
 var images = [];
 var currentIndices = [];
 var section;
-var currentClicks = 0;
+var currentClicks;
 var maxClicks = 25;
+var labelSet = [];
+var itemClicks = [];
+var itemViews = [];
 
 /**********************************************************************************
     OBJECTS
 **********************************************************************************/
 
+
 /**
- * A constructor for product
+ * Product Full Constructor
  * 
- * @param {string} name - product name
- * @param {string} src - image source
+ * @param {string} name - item name
+ * @param {string} src -image source
+ * @param {number} timesShown - a count of the times the image is shown
+ * @param {number} clicks - a count of the number of times the image was clicked
  */
-function Product(name,src){
+function Product(name,src,timesShown,clicks){
     this.name = name;
     this.src = src;
-    this.timesShown = 0;
-    this.clicks = 0;
+    if(timesShown == undefined){
+        timesShown = 0;
+    }
+    this.timesShown = timesShown;
+    if(clicks == undefined){
+        clicks = 0;
+    }
+    this.clicks = clicks;
 }
-
 
 /**
  * A collection of products.
  */
 function ProductCollection(){
-    this.productList = [];
-    this.labelSet = [];
-    this.itemClicks = [];
-    this.itemViews = [];
+    this.totalClicks = 0;
+    this.productList = this.initialize();
+}
+
+
+ProductCollection.prototype.initialize = function(){
+    let key = "collection";
+    let set = localStorage.getItem(key);
+    let result = [];
+    if(set != null){
+        let parsed = JSON.parse(set);
+        parsed.productList.forEach(productString => {
+            result.push(new Product(productString.name,
+                productString.src,productString.timesShown,productString.clicks));
+        });
+        this.totalClicks = parsed.totalClicks;
+    }
+    return result;
+}
+
+
+ProductCollection.prototype.updateLocalStorage = function(){
+    let key = "collection";
+    localStorage.setItem(key,JSON.stringify(collection));
 }
 
 
@@ -58,7 +92,9 @@ function ProductCollection(){
  function render(){
     currentIndices = getRandomUniqueIndexSet(imageCount);
     section.innerHTML = "";
-
+    let sectionHead = document.createElement('h2');
+    sectionHead.innerText = "Choose your favorite!";
+    section.appendChild(sectionHead);
     for (let i = 0; i < imageCount; i++) {
         let image = document.createElement("img");
         let element = collection.productList[currentIndices[i]];
@@ -68,6 +104,7 @@ function ProductCollection(){
         images[i] = image;
         section.appendChild(image);
     }
+    collection.updateLocalStorage();
 }
 
 
@@ -88,21 +125,13 @@ function renderViewResults(){
 }
 
 function renderCharts(){
-    collection.labelSet = [];
-    collection.itemClicks = [];
-    collection.itemViews = [];
+    labelSet = [];
+    itemClicks = [];
+    itemViews = [];
     fillDataSets();
     renderBarChart();
     renderScatter();
 
-}
-
-function fillDataSets() {
-    collection.productList.forEach(product => {
-        collection.labelSet.push(product.name);
-        collection.itemClicks.push(product.clicks);
-        collection.itemViews.push(product.timesShown);
-    });
 }
 
 
@@ -114,18 +143,18 @@ function renderBarChart(){
     let myChart = new Chart(canvas, {
         type: 'bar',
         data: {
-            labels: collection.labelSet,
+            labels: labelSet,
             datasets: [
                 {
                     label: "Likes",
-                    data: collection.itemClicks,
+                    data: itemClicks,
                     backgroundColor: ["rgba(124, 62, 102, 0.2)"],
                     borderColor: ["rgb(124, 62, 102)"],
                     borderWidth: 1
                 },
                 {
                     label: "Views",
-                    data: collection.itemViews,
+                    data: itemViews,
                     backgroundColor: ["rgba(36, 58, 115, 0.2)"],
                     borderColor: ["rgb(36, 58, 115)"],
                     borderWidth: 1
@@ -147,8 +176,8 @@ function renderBarChart(){
 function renderScatter(){
     let set = [];
     for (let i = 0; i < collection.productList.length; i++) {
-         let coord = {x:  collection.itemClicks[i] ,y: 
-         collection.itemViews[i] };
+         let coord = {x: itemClicks[i] ,y: 
+         itemViews[i] };
          set.push(coord);
         
     }
@@ -167,14 +196,12 @@ function renderScatter(){
             scales: {
                 xAxes: [{
                    ticks: {
-                      beginAtZero: true,
-                      max: 25
+                      beginAtZero: true
                    },
                 }],
                 yAxes: [{
                    ticks: {
-                      beginAtZero: true,
-                      max: 16
+                      beginAtZero: true
                    }
                 }]
              
@@ -211,6 +238,16 @@ function getRandomUniqueIndexSet(number){
     return result;
 }
 
+/**
+ * Fill the data sets for charts.
+ */
+function fillDataSets() {
+    collection.productList.forEach(product => {
+        labelSet.push(product.name);
+        itemClicks.push(product.clicks);
+        itemViews.push(product.timesShown);
+    });
+}
 
 /**
  * A function for handling a click on a product.
@@ -238,12 +275,15 @@ function handleProductClick(evt){
                     const element = setToCheck[index].name;
                     if(selected === element){
                         collection.productList[currentIndices[index]].clicks++;
+                        collection.updateLocalStorage();
                         //console.log(collection.productList[currentIndices[index]].clicks);
                         break;
                     }
                 
                 }
                 currentClicks++;
+                collection.totalClicks++;
+                collection.updateLocalStorage();
                 if(currentClicks < maxClicks){
                     render();
                 }else if(currentClicks >= maxClicks){
@@ -252,9 +292,12 @@ function handleProductClick(evt){
                     let main = document.querySelector("main");
                     let button = document.createElement("button");
                     button.textContent = "View Results";
+                    button.id = "btnResults";
                     button.addEventListener("click", renderViewResults);
                     main.appendChild(button);
                     renderCharts();
+                    collection.totalClicks = 0;
+                    collection.updateLocalStorage();
                 }
             }
     }
@@ -279,26 +322,33 @@ function initialize(){
     console.log("In initialize()");
     collection = new ProductCollection();
 
-    collection.productList.push(new Product("bag","./img/bag.jpg"));
-    collection.productList.push(new Product("banana","./img/banana.jpg"));
-    collection.productList.push(new Product("bathroom","./img/bathroom.jpg"));
-    collection.productList.push(new Product("boots","./img/boots.jpg"));
-    collection.productList.push(new Product("breakfast","./img/breakfast.jpg"));
-    collection.productList.push(new Product("bubblegum","./img/bubblegum.jpg"));
-    collection.productList.push(new Product("chair","./img/chair.jpg"));
-    collection.productList.push(new Product("cthulhu","./img/cthulhu.jpg"));
-    collection.productList.push(new Product("dog-duck","./img/dog-duck.jpg"));
-    collection.productList.push(new Product("dragon","./img/dragon.jpg"));
-    collection.productList.push(new Product("pen","./img/pen.jpg"));
-    collection.productList.push(new Product("pet-sweep","./img/pet-sweep.jpg"));
-    collection.productList.push(new Product("scissors","./img/scissors.jpg"));
-    collection.productList.push(new Product("shark","./img/shark.jpg"));
-    collection.productList.push(new Product("sweep","./img/sweep.png"));
-    collection.productList.push(new Product("tauntaun","./img/tauntaun.jpg"));
-    collection.productList.push(new Product("unicorn","./img/unicorn.jpg"));
-    collection.productList.push(new Product("water-can","./img/water-can.jpg"));
-    collection.productList.push(new Product("wine-glass","./img/wine-glass.jpg"));
+    if(collection.productList.length === 0){
 
+        collection.productList.push(new Product("bag","./img/bag.jpg"));
+        collection.productList.push(new Product("banana","./img/banana.jpg"));
+        collection.productList.push(new Product("bathroom","./img/bathroom.jpg"));
+        collection.productList.push(new Product("boots","./img/boots.jpg"));
+        collection.productList.push(new Product("breakfast","./img/breakfast.jpg"));
+        collection.productList.push(new Product("bubblegum","./img/bubblegum.jpg"));
+        collection.productList.push(new Product("chair","./img/chair.jpg"));
+        collection.productList.push(new Product("cthulhu","./img/cthulhu.jpg"));
+        collection.productList.push(new Product("dog-duck","./img/dog-duck.jpg"));
+        collection.productList.push(new Product("dragon","./img/dragon.jpg"));
+        collection.productList.push(new Product("pen","./img/pen.jpg"));
+        collection.productList.push(new Product("pet-sweep","./img/pet-sweep.jpg"));
+        collection.productList.push(new Product("scissors","./img/scissors.jpg"));
+        collection.productList.push(new Product("shark","./img/shark.jpg"));
+        collection.productList.push(new Product("sweep","./img/sweep.png"));
+        collection.productList.push(new Product("tauntaun","./img/tauntaun.jpg"));
+        collection.productList.push(new Product("unicorn","./img/unicorn.jpg"));
+        collection.productList.push(new Product("water-can","./img/water-can.jpg"));
+        collection.productList.push(new Product("wine-glass","./img/wine-glass.jpg"));
+
+        collection.updateLocalStorage();
+
+        
+    }
+    currentClicks = collection.totalClicks;
     // Check if imageCount needs adjusted
     let maxCount = Math.floor(collection.productList.length / 2);
     if(imageCount > maxCount){
