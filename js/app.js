@@ -53,14 +53,18 @@ function Product(name,src,timesShown,clicks){
 }
 
 /**
- * A collection of products.
+ * A constructor for a collection of products.
  */
 function ProductCollection(){
     this.totalClicks = 0;
     this.productList = this.initialize();
 }
 
-
+/**
+ * Check local storage for a list or return and empty array
+ * 
+ * @returns {array} - An empty list or an existing product list
+ */
 ProductCollection.prototype.initialize = function(){
     let key = "collection";
     let set = localStorage.getItem(key);
@@ -76,7 +80,9 @@ ProductCollection.prototype.initialize = function(){
     return result;
 }
 
-
+/**
+ * Update local storage with current collection
+ */
 ProductCollection.prototype.updateLocalStorage = function(){
     let key = "collection";
     localStorage.setItem(key,JSON.stringify(collection));
@@ -141,6 +147,9 @@ function renderViewResults(){
     ul.style.visibility = "visible";
 }
 
+/**
+ * calls all the functions to render the charts
+ */
 function renderCharts(){
     labelSet = [];
     itemClicks = [];
@@ -190,7 +199,9 @@ function renderBarChart(){
 
 }
 
-
+/**
+ * render the scatter plot
+ */
 function renderScatter(){
     let set = [];
     for (let i = 0; i < collection.productList.length; i++) {
@@ -384,4 +395,5 @@ function initialize(){
     
 }
 
+// call the initialize function
 initialize();
