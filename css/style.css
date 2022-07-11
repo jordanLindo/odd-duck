@@ -4,6 +4,10 @@
     #7C3E66,#F2EBE9,#A5BECC,#243A73
 */
 
+* {
+    box-sizing: border-box;
+  }
+
 body{
     height: 1000px;
     background-color: #A5BECC;
@@ -16,8 +20,10 @@ main{
 
 h1{
     margin-top: 2%;
+    margin-left: 10%;
     font-size: xx-large;
     font-weight: bolder;
+    text-align: left;
     
 }
 
@@ -35,7 +41,8 @@ h2{
 
 .item{
     grid-column: 2 / span 10;
-    min-width: 420px;
+    min-width: 1100px;
+    max-width: 1150px;
 }
 
 header{

@@ -23,6 +23,8 @@ var maxClicks = 25;
 var labelSet = [];
 var itemClicks = [];
 var itemViews = [];
+var myChart;
+var myScatter;
 
 /**********************************************************************************
     OBJECTS
@@ -90,6 +92,21 @@ ProductCollection.prototype.updateLocalStorage = function(){
  * Renders the images
  */
  function render(){
+    if(myChart != null){
+        myChart.destroy();
+        let canvas = document.getElementById("myChart");
+        canvas.style.visibility = "hidden";
+    }
+    if(myScatter != null){
+        myScatter.destroy();
+        let canvas2 = document.getElementById("scatterChart");
+        canvas2.style.visibility = "hidden";
+    }
+    let ul = document.querySelector("ul");
+    ul.innerHTML = "";
+
+
+
     currentIndices = getRandomUniqueIndexSet(imageCount);
     section.innerHTML = "";
     let sectionHead = document.createElement('h2');
@@ -140,7 +157,7 @@ function renderCharts(){
  */
 function renderBarChart(){
     let canvas = document.getElementById("myChart").getContext('2d');
-    let myChart = new Chart(canvas, {
+    myChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels: labelSet,
@@ -168,6 +185,7 @@ function renderBarChart(){
     });
 
     let finishedCanvas = document.getElementById("myChart");
+    finishedCanvas.style.visibility = "visible";
     finishedCanvas.style.background = "#F2EBE9";
 
 }
@@ -207,9 +225,10 @@ function renderScatter(){
              
         }
     };
-    let myChart = new Chart(canvas, config);
+    myScatter = new Chart(canvas, config);
 
     let finishedCanvas = document.getElementById("scatterChart");
+    finishedCanvas.style.visibility = "visible";
     finishedCanvas.style.background = "#F2EBE9";
 }
 
