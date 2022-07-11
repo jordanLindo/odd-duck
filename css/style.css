@@ -4,6 +4,7 @@
     #7C3E66,#F2EBE9,#A5BECC,#243A73
 */
 
+
 * {
     box-sizing: border-box;
   }
@@ -24,7 +25,7 @@ h1{
     font-size: xx-large;
     font-weight: bolder;
     text-align: left;
-    
+    font-family: 'Indie Flower', cursive;
 }
 
 h2{
